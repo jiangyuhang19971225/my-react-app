@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useContext } from 'react';
 import { Button, Card, message } from 'antd';
 import { createStyles } from 'antd-style';
 import TableComponent from './tableComponent';
 import ModalComponent from './modalComponent';
+import { ApiConfigContext } from '../../App';
 
 const useStyle = createStyles(({ css }) => {
   return {
@@ -40,6 +41,11 @@ export type FormItemType = {
 };
 
 const PerInfo: React.FC = () => {
+  // 获取API配置
+  const apiConfig = useContext(ApiConfigContext);
+
+  console.log('蒋宇航23', apiConfig);
+  const [messageApi] = message.useMessage();
   const [dataSource, setDataSource] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -137,14 +143,16 @@ const PerInfo: React.FC = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('操作失败:', errorData);
+        const { error } = await response.json();
+        message.error(`操作失败:', ${error}`);
+        console.error('操作失败:', error);
       } else {
         console.log(`${isEdit ? '修改' : '新增'}成功`);
+        message.success(`${isEdit ? '修改' : '新增'}成功`);
         const newData = await fetchData();
         setDataSource(newData);
+        setIsModalOpen(false);
       }
-      setIsModalOpen(false);
     } catch (error) {
       console.error('错误信息:', error);
     }

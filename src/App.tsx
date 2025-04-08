@@ -55,6 +55,12 @@ const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
  *
  * @returns {React.ReactNode} 渲染的组件内容。
  */
+// 将上下文定义移到组件外部
+export const ApiConfigContext = React.createContext({
+  baseUrl: 'http://localhost:3000',
+  authToken: '',
+});
+
 const App: React.FC = () => {
   // 获取导航函数
   const navigate = useNavigate();
@@ -90,6 +96,25 @@ const App: React.FC = () => {
     }
     navigate(path);
   };
+
+  // 修改Provider的value使用方式;
+  const contextValue = React.useMemo(() => {
+    return {
+      baseUrl: 'http://localhost:3000',
+      authToken: localStorage.getItem('token') ?? '',
+    };
+  }, []); // 空依赖数组表示只计算一次
+  // const contextValue = React.useMemo(
+  //   () => ({
+  //     baseUrl: 'http://localhost:3000',
+  //     authToken: localStorage.getItem('token') ?? '',
+  //   }),
+  //   [],
+  // ); // 空依赖数组表示只计算一次
+  // const contextValue = {
+  //   baseUrl: 'http://localhost:3000',
+  //   authToken: localStorage.getItem('token') ?? '',
+  // };
 
   return (
     <Layout style={{ height: '100vh' }}>
@@ -184,23 +209,26 @@ const App: React.FC = () => {
           </Breadcrumb>
         </Header>
 
-        <Content
-          style={{
-            margin: '24px 16px',
-            padding: 24,
-            background: '#fff',
-            borderRadius: 8,
-            overflow: 'auto',
-          }}
-        >
-          <RouteGuard>
-            <Routes>
-              {routes.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element} />
-              ))}
-            </Routes>
-          </RouteGuard>
-        </Content>
+        {/* 修改上下文提供方式 */}
+        <ApiConfigContext.Provider value={contextValue}>
+          <Content
+            style={{
+              margin: '24px 16px',
+              padding: 24,
+              background: '#fff',
+              borderRadius: 8,
+              overflow: 'auto',
+            }}
+          >
+            <RouteGuard>
+              <Routes>
+                {routes.map((route, index) => (
+                  <Route key={index} path={route.path} element={route.element} />
+                ))}
+              </Routes>
+            </RouteGuard>
+          </Content>
+        </ApiConfigContext.Provider>
       </Layout>
     </Layout>
   );

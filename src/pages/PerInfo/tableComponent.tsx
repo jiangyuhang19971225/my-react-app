@@ -52,6 +52,16 @@ const TableComponent: React.FC<TableComponentProps> = ({
       width: 150,
     },
     {
+      title: '创建时间',
+      dataIndex: 'created_at',
+      width: 150,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updated_at',
+      render: (created_at) => (created_at ? new Date(created_at).toLocaleString() : '-'),
+    },
+    {
       title: '操作',
       key: 'operation',
       fixed: 'right',
