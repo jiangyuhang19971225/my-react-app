@@ -65,7 +65,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
       title: '操作',
       key: 'operation',
       fixed: 'right',
-      width: 100,
+      width: 150,
       render: (value, record) => {
         return (
           <>
@@ -87,7 +87,7 @@ const TableComponent: React.FC<TableComponentProps> = ({
       className={styles.customTable}
       columns={columns}
       dataSource={dataSource}
-      scroll={{ x: 'max-content', y: 55 * 5 }}
+      scroll={{ x: 'max-content', y: 40 * 10 }}
     />
   );
 };

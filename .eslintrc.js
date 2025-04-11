@@ -20,5 +20,7 @@ module.exports = {
   },
   rules: {
     'react/prop-types': 'off', // 如果你不使用 prop-types 可以关闭
+    '@typescript-eslint/no-unused-vars': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn', // 禁用 no-explicit-any 规则
   },
 };

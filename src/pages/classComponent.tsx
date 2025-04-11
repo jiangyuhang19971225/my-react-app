@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
 
-class MyComponent extends Component {
+interface YourComponentProps {
+  // count: number; // 声明 count 属性及其类型
+  [key: string]: any;
+}
+interface MyComponentState {
+  count: number;
+}
+// React 类组件的 属性（Props） 和 状态（State） 的类型
+class MyComponent extends Component<YourComponentProps, MyComponentState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -42,9 +50,7 @@ class MyComponent extends Component {
     return (
       <div>
         <p>Count: {this.state.count}</p>
-        <button onClick={() => this.setState({ count: this.state.count + 1 })}>
-          Increment
-        </button>
+        <button onClick={() => this.setState({ count: this.state.count + 1 })}>Increment</button>
         <div></div>
       </div>
     );

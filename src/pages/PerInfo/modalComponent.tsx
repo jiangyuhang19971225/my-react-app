@@ -20,6 +20,8 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
   const [form] = Form.useForm();
   React.useEffect(() => {
     if (editData) {
+      console.log('弹窗执行', editData);
+
       form.setFieldsValue(editData);
     } else {
       console.log('zheli1');
@@ -68,7 +70,7 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
       rules: [
         { required: true, message: '请输入手机号' },
         {
-          pattern: /^1[3 - 9]\d{9}$/,
+          pattern: /^1[3-9]\d{9}$/,
           message: '请输入有效的手机号码',
         },
       ],

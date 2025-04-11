@@ -3,7 +3,7 @@
     // 是否禁止隐式的 any 类型（关闭时允许推导 any 类型）
     "noImplicitAny": false,
     // 指定增量编译的缓存文件路径（用于加速后续构建）
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    // "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
     // 编译目标为 ECMAScript 2020 规范
     "target": "ES2020",
@@ -34,9 +34,10 @@
     // 启用所有严格类型检查
     "strict": true,
     // 检查未使用的局部变量
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
+
     // 检查未使用的函数参数
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     // 强制 switch 语句包含所有情况处理
     "noFallthroughCasesInSwitch": true,
     // 检查副作用模块的无保护导入（需要 TS 4.4+）

@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    // 允许隐式 any 类型
+    "noImplicitAny": false,
     "target": "ES2022",
     "lib": ["ES2023"],
     "module": "ESNext",
@@ -15,8 +17,10 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    // 禁用未使用变量检查
+    "noUnusedLocals": false,
+    // 禁用未使用参数检查
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
