@@ -2,45 +2,15 @@ import React, { useEffect } from 'react';
 import styles from './index.module.css';
 import { Spin } from 'antd';
 import useSWR from 'swr';
-
-interface IImgListProps {
-  id: string;
-  name: string;
-  email: string;
-  [key: string]: string;
-}
+import { getUsers, User } from '../../services/api';
 
 const ImgList: React.FC = () => {
-  const fetcher = async (url: string) => {
-    const res = await fetch(url, {
-      method: 'get',
-      headers: {
-        authorization: 'Bearer ' + localStorage.getItem('token'),
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!res.ok) throw new Error('请求失败');
-    return res.json();
+  const fetcher = async (): Promise<User[]> => {
+    const response = await getUsers();
+    return response as unknown as User[];
   };
-  const { data, error, isLoading, mutate } = useSWR<IImgListProps[]>(
-    'https://jsonplaceholder.typicode.com/users',
-    fetcher,
-    {
-      // revalidateOnFocus: false, // 关闭窗口聚焦重新请求
-      // refreshInterval: 300000, // 5分钟自动刷新
-    },
-  );
-  // const [listData, setListData] = React.useState([]);
-  // const [loading, setLoading] = React.useState(true);
-  // const fetchData = async () => {
-  //   const responses = await fetch('https://jsonplaceholder.typicode.com/users');
-  //   const data = await responses.json();
-  //   setListData(data);
-  //   setLoading(false);
-  // };
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
+
+  const { data, error, isLoading, mutate } = useSWR<User[]>('users', fetcher);
 
   // 错误的定时器位置（直接放在函数体内）
   useEffect(() => {
@@ -68,7 +38,7 @@ const ImgList: React.FC = () => {
 
     return (
       data &&
-      data.map((item: IImgListProps) => {
+      data.map((item: User) => {
         return (
           <div key={item.id} className={styles.cardContainer}>
             <img src={`https://robohash.org/${item.id}`} alt={item.name} />

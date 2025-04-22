@@ -4,6 +4,13 @@ import { createStyles } from 'antd-style';
 import TableComponent from './tableComponent';
 import ModalComponent from './modalComponent';
 import { ApiConfigContext } from '../../App';
+import {
+  getPersons,
+  deletePerson,
+  updatePerson,
+  addPerson,
+  searchPersons,
+} from '../../services/api';
 
 const useStyle = createStyles(({ css }) => {
   return {
@@ -22,6 +29,7 @@ const useStyle = createStyles(({ css }) => {
   };
 });
 
+// Make DataType compatible with Person
 export interface DataType {
   key: React.Key;
   id: number;
@@ -30,19 +38,21 @@ export interface DataType {
   address: string;
   email: string;
   phone: string;
+  [key: string]: string | number | boolean | undefined | React.Key;
 }
-// 表单提交处理
-// 在顶部添加类型定义
+
+// Update SearchFormValues to be compatible with Partial<Person>
 export type FormItemType = {
   label: string;
   name: string;
-  rules?: any[];
+  rules?: Record<string, unknown>[];
   element: React.ReactNode;
 };
 
 interface SearchFormValues {
   name?: string;
   age?: number;
+  [key: string]: string | number | undefined;
 }
 
 const PerInfo: React.FC = () => {
@@ -58,35 +68,30 @@ const PerInfo: React.FC = () => {
   const [form] = Form.useForm();
 
   const fetchData = useCallback(async () => {
-    const response = await fetch('http://localhost:3000/persons', {
-      method: 'get',
-      headers: {
-        authorization: 'Bearer ' + localStorage.getItem('token'),
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP 错误！状态码: ${response.status}`);
+    try {
+      return (await getPersons()) as unknown as DataType[];
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      message.error(`请求失败: ${errorMessage}`);
+      throw error;
     }
-    return await response.json();
   }, []);
 
   useEffect(() => {
-    const fetchAndLogData = async () => {
+    const fetchAndLoadData = async () => {
       try {
-        const data = await fetchData(); // 添加await等待Promise解析
+        const data = await fetchData();
         setTimeout(() => {
           setDataSource(data);
           setLoading(false);
         }, 500);
-      } catch (error) {
-        message.error(`请求失败:${error}`);
+      } catch {
+        // 错误已在fetchData中处理
       }
     };
 
-    fetchAndLogData();
-  }, []);
+    fetchAndLoadData();
+  }, [fetchData]);
 
   const showModal = useCallback((edit?: boolean, record?: DataType) => {
     setIsModalOpen(true);
@@ -112,20 +117,10 @@ const PerInfo: React.FC = () => {
       const confirmDelete = window.confirm('确定删除吗？');
       if (confirmDelete) {
         try {
-          const response = await fetch(`http://localhost:3000/persons/${id}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              authorization: 'Bearer ' + localStorage.getItem('token'),
-            },
-          });
-          if (response.ok) {
-            console.log('删除成功');
-            const newData = await fetchData();
-            setDataSource(newData);
-          } else {
-            console.error('删除失败');
-          }
+          await deletePerson(id);
+          console.log('删除成功');
+          const newData = await fetchData();
+          setDataSource(newData);
         } catch (error) {
           console.error('删除失败:', error);
         }
@@ -136,30 +131,37 @@ const PerInfo: React.FC = () => {
 
   const handleSubmit = async (values: DataType) => {
     try {
-      const url = 'http://localhost:3000/persons';
-      const method = isEdit ? 'PUT' : 'POST';
-
-      const response = await fetch(isEdit ? `${url}/${editData?.id}` : url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: 'Bearer ' + localStorage.getItem('token'),
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        const { error } = await response.json();
-        message.error(`操作失败:', ${error}`);
-        console.error('操作失败:', error);
+      if (isEdit && editData) {
+        // 转换为API需要的格式
+        const apiData = {
+          name: values.name,
+          age: values.age,
+          address: values.address,
+          email: values.email,
+          phone: values.phone,
+        };
+        await updatePerson(editData.id, apiData);
       } else {
-        console.log(`${isEdit ? '修改' : '新增'}成功`);
-        message.success(`${isEdit ? '修改' : '新增'}成功`);
-        const newData = await fetchData();
-        setDataSource(newData);
-        setIsModalOpen(false);
+        // 转换为API需要的格式
+        const apiData = {
+          name: values.name,
+          age: values.age,
+          address: values.address,
+          email: values.email,
+          phone: values.phone,
+        };
+        await addPerson(apiData);
       }
+
+      console.log(`${isEdit ? '修改' : '新增'}成功`);
+      message.success(`${isEdit ? '修改' : '新增'}成功`);
+
+      const newData = await fetchData();
+      setDataSource(newData);
+      setIsModalOpen(false);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      message.error(`操作失败: ${errorMessage}`);
       console.error('错误信息:', error);
     }
   };
@@ -171,29 +173,17 @@ const PerInfo: React.FC = () => {
   const handleSearch = async (values: SearchFormValues) => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams();
-      if (values.name) queryParams.append('name', values.name);
-      if (values.age) queryParams.append('age', values.age.toString());
-
-      const response = await fetch(
-        `http://localhost:3000/search/persons?${queryParams.toString()}`,
-        {
-          headers: {
-            authorization: 'Bearer ' + localStorage.getItem('token'),
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setDataSource(data);
+      // 转换为API需要的格式
+      const apiParams = {
+        name: values.name,
+        age: values.age,
+      };
+      const data = await searchPersons(apiParams);
+      setDataSource(data as unknown as DataType[]);
       message.success('查询成功');
     } catch (error) {
-      message.error('查询失败: ' + error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      message.error(`查询失败: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -221,8 +211,14 @@ const PerInfo: React.FC = () => {
     [dataSource, styles, showModal, handleDel],
   );
 
+  const renderHexaer = () => (
+    <>
+      <h1>hahahah1</h1>
+    </>
+  );
   return (
     <>
+      {renderHexaer()}
       <Card title="人员信息管理" loading={loading}>
         <Form form={form} onFinish={handleSearch} layout="inline" style={{ marginBottom: 16 }}>
           <Row gutter={[16, 16]} style={{ width: '100%' }}>

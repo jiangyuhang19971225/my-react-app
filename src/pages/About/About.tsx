@@ -5,21 +5,21 @@ import useRequest from '../../hooks/useRequest.ts';
 import JsonView from 'react18-json-view';
 import 'react18-json-view/src/style.css';
 import styles from './index.module.css';
+import { getUsers, User } from '../../services/api';
 
 const About: React.FC = () => {
   const fn = async () => {
-    const responses = await fetch('https://jsonplaceholder.typicode.com/users');
-    const data = await responses.json();
-    return data;
+    const response = await getUsers();
+    return response as unknown as User[];
   };
-  const { data, error, loading, request } = useRequest(fn);
+  const { data, error, loading, request } = useRequest<User[]>(fn);
   console.log('jyhdata', data);
 
   const { count } = useCount(0);
 
   useEffect(() => {
     request();
-  }, []);
+  }, [request]);
 
   return (
     <>
@@ -32,12 +32,13 @@ const About: React.FC = () => {
         {data &&
           data.length > 0 &&
           data.map((ele) => {
-            return <div key={ele.id}> {ele.address.street}</div>;
+            return <div key={ele.id}> {ele.address?.street}</div>;
           })}
-        {error} {loading}
+        {error ? <div>{String(error)}</div> : null} {loading && <div>Loading...</div>}
+        {/* {error && <div>{String(error)}</div>} {loading && <div>Loading...</div>} */}
       </Card>
       <Card className={styles.card} title="JSON数据展示">
-        <JsonView src={data} theme="vscode" displayArrayIndex={false}></JsonView>
+        {data && <JsonView src={data} theme="vscode" displayArrayIndex={false} />}
       </Card>
     </>
   );

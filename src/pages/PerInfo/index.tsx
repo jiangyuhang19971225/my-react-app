@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Card, Button, Modal, Form, Input, InputNumber, message } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { createStyles } from 'antd-style';
+import { getPersons, addPerson, updatePerson, deletePerson } from '../../services/api';
 
 const useStyle = createStyles(({ css }) => {
   return {
@@ -21,7 +22,7 @@ const useStyle = createStyles(({ css }) => {
 });
 
 interface DataType {
-  key: React.Key;
+  key?: React.Key;
   id: number;
   name: string;
   age: number;
@@ -34,43 +35,40 @@ interface DataType {
 type FormItemType = {
   label: string;
   name: string;
-  rules?: any[];
+  rules?: Record<string, unknown>[];
   element: React.ReactNode;
 };
 
 const PerInfo: React.FC = () => {
   const [dataSource, setDataSource] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(true);
-  const fetchData = async () => {
-    const response = await fetch('http://localhost:3000/persons', {
-      method: 'get',
-      headers: {
-        authorization: 'Bearer ' + localStorage.getItem('token'),
-        // authorization: localStorage.getItem('token') ?? '',
-        'Content-Type': 'application/json',
-      },
-    });
-    console.log('response', response);
 
-    if (!response.ok) {
-      throw new Error(`HTTP 错误！状态码: ${response.status}`);
+  const fetchData = async (): Promise<DataType[]> => {
+    try {
+      // 响应拦截器已经提取了响应中的data部分
+      return (await getPersons()) as unknown as DataType[];
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      message.error(`请求失败: ${errorMessage}`);
+      return [];
     }
-    return await response.json();
   };
+
   useEffect(() => {
-    const fetchAndLogData = async () => {
+    const fetchAndLoadData = async () => {
       try {
-        const data = await fetchData(); // 添加await等待Promise解析
+        const data = await fetchData();
         setTimeout(() => {
           setDataSource(data);
           setLoading(false);
         }, 500);
-      } catch (error) {
-        message.error(`请求失败:${error}`);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        message.error(`请求失败: ${errorMessage}`);
       }
     };
 
-    fetchAndLogData();
+    fetchAndLoadData();
   }, []);
 
   const { styles } = useStyle();
@@ -216,31 +214,22 @@ const PerInfo: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      const url = 'http://localhost:3000/persons';
-      const method = isEdit ? 'PUT' : 'POST';
 
-      const response = await fetch(isEdit ? `${url}/${editData?.id}` : url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: 'Bearer ' + localStorage.getItem('token'),
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        message.error(errorData.message || '操作失败');
-        throw new Error(errorData);
+      if (isEdit && editData) {
+        await updatePerson(editData.id, values);
+        message.success('修改成功！');
       } else {
-        message.success(`${isEdit ? '修改' : '新增'}成功！`);
-        // fetchData().then((data) => setDataSource(data));
-        setIsModalOpen(false);
+        await addPerson(values);
+        message.success('新增成功！');
       }
-      fetchData().then((data) => setDataSource(data));
+
+      const data = await fetchData();
+      setDataSource(data);
       setIsModalOpen(false);
     } catch (error: unknown) {
-      console.log('错误信息', JSON.stringify(error));
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log('错误信息', error);
+      message.error(`操作失败: ${errorMessage}`);
     }
   };
 
@@ -255,28 +244,23 @@ const PerInfo: React.FC = () => {
   };
 
   const handleDel = (id: number) => {
-    const confirmDelete = window.confirm('确定删除吗？');
-    if (confirmDelete) {
-      fetch(`http://localhost:3000/persons/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          authorization: 'Bearer ' + localStorage.getItem('token'),
-        },
-      })
-        .then((response) => {
-          if (response.ok) {
-            message.success('删除成功！');
-            fetchData().then((data) => setDataSource(data));
-          } else {
-            message.error('删除失败！');
-          }
-        })
-        .catch((error) => {
-          console.error('删除失败:', error);
-          message.error('删除失败！');
-        });
-    }
+    Modal.confirm({
+      title: '确认删除',
+      content: '确定要删除这条记录吗？',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          await deletePerson(id);
+          message.success('删除成功');
+          const data = await fetchData();
+          setDataSource(data);
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          message.error(`删除失败: ${errorMessage}`);
+        }
+      },
+    });
   };
 
   return (

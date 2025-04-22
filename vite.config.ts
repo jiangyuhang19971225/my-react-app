@@ -12,8 +12,15 @@ export default defineConfig({
     // }),
   ],
   base: './', // 保持相对路径但需要确保文件层级正确
-  // server: {
-  //   host: '0.0.0.0',
-  //   port: 3001,
-  // },
+  server: {
+    host: '0.0.0.0',
+    port: 3001,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 });
