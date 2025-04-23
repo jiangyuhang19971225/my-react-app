@@ -12,7 +12,7 @@ export const useCount = (initialValue: number = 0) => {
     console.log('useCount effect');
     const timer = setInterval(() => {
       increment();
-    }, 2000);
+    }, 1000);
     return () => {
       clearInterval(timer);
     };

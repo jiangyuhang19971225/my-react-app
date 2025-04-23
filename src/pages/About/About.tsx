@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, memo, useMemo } from 'react';
 import { Card } from 'antd';
 import { useCount } from '../../hooks/useCount.ts';
 import useRequest from '../../hooks/useRequest.ts';
@@ -6,26 +6,51 @@ import JsonView from 'react18-json-view';
 import 'react18-json-view/src/style.css';
 import styles from './index.module.css';
 import { getUsers, User } from '../../services/api';
+import CountDownComponent from '../../component/CountDownComponent.tsx';
+import Robot from '../../component/Robot.tsx';
+
+// 将计数器功能抽离为单独组件
+const CounterDisplay = memo(() => {
+  const { count } = useCount(0);
+
+  return (
+    <div>
+      <div>hooks useCount 数字自增 </div>
+      <div>count: {count}</div>
+    </div>
+  );
+});
 
 const About: React.FC = () => {
-  const fn = async () => {
+  const fn = useCallback(async () => {
     const response = await getUsers();
     return response as unknown as User[];
-  };
-  const { data, error, loading, request } = useRequest<User[]>(fn);
-  console.log('jyhdata', data);
+  }, []);
 
-  const { count } = useCount(0);
+  const { data, error, loading, request } = useRequest<User[]>(fn);
+  console.log('jyhcs', data);
 
   useEffect(() => {
     request();
-  }, [request]);
+  }, []);
+
+  const fn1 = useMemo(() => {
+    return <CountDownComponent />;
+  }, []);
 
   return (
     <>
       <Card title="About Page" className={styles.card}>
-        <div>hooks useCount 数字自增 </div>
-        <div>count: {count}</div>
+        <CounterDisplay />
+        <div>
+          <span>倒计时 组件使用系统时间校准</span>
+          {fn1}
+          <CountDownComponent />
+        </div>
+
+        <h1>
+          <Robot></Robot>
+        </h1>
       </Card>
 
       <Card title="request" className={styles.card}>
@@ -34,7 +59,8 @@ const About: React.FC = () => {
           data.map((ele) => {
             return <div key={ele.id}> {ele.address?.street}</div>;
           })}
-        {error ? <div>{String(error)}</div> : null} {loading && <div>Loading...</div>}
+        {error ? <div>{String(error)}</div> : null}
+        {loading && <div>Loading...</div>}
         {/* {error && <div>{String(error)}</div>} {loading && <div>Loading...</div>} */}
       </Card>
       <Card className={styles.card} title="JSON数据展示">
@@ -44,4 +70,4 @@ const About: React.FC = () => {
   );
 };
 
-export default About;
+export default memo(About);

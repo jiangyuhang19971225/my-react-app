@@ -41,7 +41,16 @@ const ImgList: React.FC = () => {
       data.map((item: User) => {
         return (
           <div key={item.id} className={styles.cardContainer}>
-            <img src={`https://robohash.org/${item.id}`} alt={item.name} />
+            <img
+              src={`https://robohash.org/${item.id}?set=set4`}
+              alt={item.name}
+              loading="lazy"
+              style={{
+                width: '100%',
+                aspectRatio: '1/1',
+                objectFit: 'cover', // 保持图片比例
+              }}
+            />
             <h3>{item.name}</h3>
             <p>{item.email}</p>
           </div>
