@@ -5,9 +5,9 @@ import useRequest from '../../hooks/useRequest.ts';
 import JsonView from 'react18-json-view';
 import 'react18-json-view/src/style.css';
 import styles from './index.module.css';
-import { getUsers, User } from '../../services/api';
-import CountDownComponent from '../../component/CountDownComponent.tsx';
-import Robot from '../../component/Robot.tsx';
+import { getUsers, User } from '../../services/api.ts';
+import CountDownComponent from '../../components/CountDownComponent.tsx';
+import Robot from '../../components/Robot.tsx';
 
 // 将计数器功能抽离为单独组件
 const CounterDisplay = memo(() => {

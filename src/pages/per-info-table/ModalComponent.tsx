@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Form, Input, InputNumber } from 'antd';
-import { DataType, FormItemType } from './perinfo';
+import { DataType, FormItemType } from './Perinfo';
 
 interface ModalComponentProps {
   isModalOpen: boolean;

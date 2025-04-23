@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useMemo, useEffect, useContext } from 'react';
 import { Button, Card, Input, message, Form, Row, Col, Space } from 'antd';
 import { createStyles } from 'antd-style';
-import TableComponent from './tableComponent';
-import ModalComponent from './modalComponent';
+import TableComponent from './TableComponent';
+import ModalComponent from './ModalComponent';
 import { ApiConfigContext } from '../../App';
 import {
   getPersons,

@@ -5,17 +5,17 @@ import { Spin } from 'antd';
 import { Navigate } from 'react-router-dom';
 
 const Home = lazy(() => import('./pages/Home'));
-const About = lazy(() => import('./pages/About/About'));
+const About = lazy(() => import('./pages/about'));
 const Table = lazy(() => import('./pages/Table'));
 const Table2 = lazy(() => import('./pages/Table2/Table2'));
-const Form = lazy(() => import('./pages/Form/index'));
-const Echarts = lazy(() => import('./pages/Echarts/index'));
+const Form = lazy(() => import('./pages/form/index'));
+const Echarts = lazy(() => import('./pages/echarts/index'));
 const ClassComponent = lazy(() => import('./pages/classComponent'));
 const ImgList = lazy(() => import('./pages/ImgList/index'));
-const PerInfo = lazy(() => import('./pages/PerInfo/perinfo'));
+const PerInfo = lazy(() => import('./pages/per-info-table/Perinfo'));
 
 // 新增登录页导入
-const Login = lazy(() => import('./pages/Login/index'));
+const Login = lazy(() => import('./pages/login/index'));
 // 新增私有路由组件
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem('token'); // 或使用你的token存储方式

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Button } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { DataType } from './perinfo';
+import { DataType } from './Perinfo';
 
 interface TableComponentProps {
   dataSource: DataType[];
