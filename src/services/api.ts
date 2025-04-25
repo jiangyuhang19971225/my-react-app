@@ -21,7 +21,7 @@ export const getPersonById = (id: string | number) => {
 
 // 搜索人员
 export const searchPersons = (params: Partial<Person>) => {
-  return http.get('/search/persons', { params });
+  return http.get('/persons/search', { params });
 };
 
 // 添加人员
