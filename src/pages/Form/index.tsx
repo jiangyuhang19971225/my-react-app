@@ -1,7 +1,10 @@
-import { Layout, Card, Button, Checkbox, Form, Input, InputNumber } from 'antd';
+import { Layout, Card, Button, Checkbox, Form, Input, InputNumber, Steps } from 'antd';
 import type { FormProps } from 'antd/lib/form';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import styles from './index.module.css';
+import FirstForm from './components/FirstForm';
+import SecondForm from './components/SecondForm';
+import { log } from 'echarts/types/src/util/log.js';
 
 type FieldType = {
   username?: string;
@@ -18,9 +21,7 @@ const BasicForm: React.FC = () => {
     setBaseform(values);
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
-    errorInfo,
-  ) => {
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
 
@@ -61,11 +62,7 @@ const BasicForm: React.FC = () => {
             <Input.Password />
           </Form.Item>
 
-          <Form.Item<FieldType>
-            name="remember"
-            valuePropName="checked"
-            label={null}
-          >
+          <Form.Item<FieldType> name="remember" valuePropName="checked" label={null}>
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
@@ -87,7 +84,116 @@ const BasicForm: React.FC = () => {
 };
 
 const Form1: React.FC = () => {
-  return <Card title="form1"></Card>;
+  const [current, setCurrent] = useState(0);
+  const [formData, setFormData] = useState({
+    first: {} as Record<string, unknown>,
+    second: {} as Record<string, unknown>,
+    last: {} as Record<string, unknown>,
+  });
+
+  // 创建对表单的引用
+  const firstFormRef = React.useRef<{ validateFields: () => Promise<Record<string, unknown>> }>(
+    null,
+  );
+  const secondFormRef = React.useRef<{ validateFields: () => Promise<Record<string, unknown>> }>(
+    null,
+  );
+
+  const steps = [
+    {
+      title: 'First',
+      content: <FirstForm ref={firstFormRef} initialValues={formData.first} />,
+    },
+    {
+      title: 'Second',
+      content: <SecondForm ref={secondFormRef} initialValues={formData.second} />,
+    },
+    {
+      title: 'Last',
+      content: (
+        <>
+          <h1>Last</h1>
+          <div>
+            {JSON.stringify(formData.first)}
+            {JSON.stringify(formData.second)}
+          </div>
+        </>
+      ),
+    },
+  ];
+
+  const items = steps.map((item) => ({ key: item.title, title: item.title }));
+
+  const handleFormFinish = (step: string, data: Record<string, unknown>) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [step]: data,
+    }));
+    if (current < steps.length - 1) {
+      setCurrent(current + 1); // 自动切换到下一个步骤
+    }
+  };
+
+  const handleSubmit = () => {
+    console.log('Final Data:', formData);
+    // 在这里进行统一提交，例如发送到服务器
+  };
+
+  const nextStep = () => {
+    // 根据当前步骤，验证对应的表单
+    if (current === 0 && firstFormRef.current) {
+      // 验证第一个表单
+      firstFormRef.current
+        .validateFields()
+        .then((values) => {
+          // 表单验证通过，进入下一步
+          handleFormFinish('first', values);
+        })
+        .catch((error) => {
+          console.log('Validate Failed:', error);
+        });
+    } else if (current === 1 && secondFormRef.current) {
+      // 验证第二个表单
+      secondFormRef.current
+        .validateFields()
+        .then((values) => {
+          // 表单验证通过，进入下一步
+          handleFormFinish('second', values);
+        })
+        .catch((error) => {
+          console.log('Validate Failed:', error);
+        });
+    } else {
+      alert('最后一步');
+    }
+  };
+
+  const changeStep = (current: number) => {
+    // console.log('changeStep:', current);
+    setCurrent(current);
+    // setTimeout(() => {
+    //   nextStep();
+    // });
+  };
+
+  return (
+    <Card title="分部表单">
+      <Steps current={current} items={items} onChange={(current) => changeStep(current)} />
+      {steps[current].content}
+      <div style={{ marginTop: 16 }}>
+        {current < steps.length - 1 && (
+          <Button type="primary" onClick={nextStep}>
+            Next
+          </Button>
+        )}
+        {current === steps.length - 1 && (
+          <Button type="primary" onClick={handleSubmit}>
+            Submit
+          </Button>
+        )}
+      </div>
+    </Card>
+  );
 };
 
 export default function FormDemo() {

@@ -40,6 +40,10 @@ const About: React.FC = () => {
 
   return (
     <>
+      {/* <iframe
+        src="http://127.0.0.1:5500/model-viewer.html"
+        style={{ width: '100%', height: '500px', border: 'none' }}
+      ></iframe> */}
       <Card title="About Page" className={styles.card}>
         <CounterDisplay />
         <div>
