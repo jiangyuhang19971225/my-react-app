@@ -1,6 +1,17 @@
 import React, { useState, useMemo, useDeferredValue, useTransition } from 'react';
 import styles from '../index.module.css';
-
+// 用户输入流程：
+// 1. 用户输入 "项目"
+//    ↓
+// 2. searchTerm 立即更新为 "项目" (输入框立即响应)
+//    ↓
+// 3. deferredSearchTerm 仍然是旧值 (延迟更新)
+//    ↓
+// 4. React 在合适时机更新 deferredSearchTerm 为 "项目"
+//    ↓
+// 5. filteredItems 重新计算 (基于延迟值)
+//    ↓
+// 6. 搜索结果更新显示
 // ================================
 // 📋 组件总览 & 核心概念
 // ================================
@@ -60,6 +71,9 @@ export const UseDeferredValueDemo: React.FC = () => {
    */
   const [isPending, startTransition] = useTransition();
 
+  // 🔧 新增：处理输入法组合状态
+  const [isComposing, setIsComposing] = useState(false);
+
   // ================================
   // 📦 useMemo 性能优化
   // ================================
@@ -106,21 +120,37 @@ export const UseDeferredValueDemo: React.FC = () => {
   }, [allItems, deferredSearchTerm]); // 👈 关键：依赖延迟值
 
   // ================================
-  // 🎛️ 输入处理 - 非紧急更新
+  // 🎛️ 输入处理 - 修复中文输入法问题
   // ================================
   /**
-   * 作用：将搜索词更新标记为非紧急
+   * 🔧 修复中文输入法问题
    *
-   * 工作流程：
-   * 1. 用户输入 → handleSearchChange
-   * 2. startTransition 包装更新
-   * 3. setSearchTerm 被标记为低优先级
-   * 4. React 优先处理其他紧急更新
-   * 5. 在合适时机更新 searchTerm
+   * 问题：startTransition 会延迟状态更新，干扰输入法的组合输入过程
+   * 解决：在输入法组合期间，直接更新状态；组合结束后，使用 startTransition
    */
   const handleSearchChange = (value: string) => {
-    startTransition(() => {
+    if (isComposing) {
+      // 输入法组合期间：直接更新，避免干扰拼音输入
       setSearchTerm(value);
+    } else {
+      // 正常输入：使用 startTransition 优化性能
+      startTransition(() => {
+        setSearchTerm(value);
+      });
+    }
+  };
+
+  // 🎯 输入法组合开始
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  // 🎯 输入法组合结束
+  const handleCompositionEnd = (e: React.CompositionEvent<HTMLInputElement>) => {
+    setIsComposing(false);
+    // 组合结束后，使用 startTransition 进行最终更新
+    startTransition(() => {
+      setSearchTerm(e.currentTarget.value);
     });
   };
 
@@ -133,8 +163,10 @@ export const UseDeferredValueDemo: React.FC = () => {
         <div className={styles.searchContainer}>
           <input
             placeholder="搜索项目... (输入'项目'或'分类')"
-            value={searchTerm} // 👈 绑定立即值，保持输入流畅
+            value={searchTerm}
             onChange={(e) => handleSearchChange(e.target.value)}
+            onCompositionStart={handleCompositionStart}
+            onCompositionEnd={handleCompositionEnd}
             className={styles.input}
           />
           {isPending && <span className={styles.pending}>搜索中...</span>}
