@@ -13,6 +13,9 @@ const Echarts = lazy(() => import('./pages/echarts/index'));
 const ClassComponent = lazy(() => import('./pages/classComponent'));
 const ImgList = lazy(() => import('./pages/ImgList/index'));
 const PerInfo = lazy(() => import('./pages/per-info-table/Perinfo'));
+const WebSocketClient = lazy(() => import('./pages/web-socket/Websocket'));
+const FormTable = lazy(() => import('./pages/form-table/index'));
+const HooksDemo = lazy(() => import('./pages/hooks-demo/index'));
 
 // 新增登录页导入
 const Login = lazy(() => import('./pages/login/index'));
@@ -97,6 +100,14 @@ const routes: RouteObject[] = [
     ),
   },
   {
+    path: '/web-socket',
+    element: (
+      <Suspense fallback={<Spin size="large" />}>
+        <WebSocketClient />
+      </Suspense>
+    ),
+  },
+  {
     path: '/perInfo',
     element: (
       <PrivateRoute>
@@ -106,6 +117,23 @@ const routes: RouteObject[] = [
       </PrivateRoute>
     ),
   },
+  {
+    path: '/form-table',
+    element: (
+      <Suspense fallback={<Spin size="large" />}>
+        <FormTable />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/hooks-demo',
+    element: (
+      <Suspense fallback={<Spin size="large" />}>
+        <HooksDemo />
+      </Suspense>
+    ),
+  },
+
   {
     path: '*',
     element: (

@@ -76,3 +76,24 @@ export default useRequest;
 // }
 
 // export default useRequest;
+
+// 示例1: 获取用户数据
+// interface User {
+//   id: number;
+//   name: string;
+//   email: string;
+// }
+
+// const { data, loading, error } = useRequest<User[]>(() => axios.get('/api/users'));
+// // 这里 T = User[]
+// // data 的类型是 User[] | null
+
+// // 示例2: 获取字符串数据
+// const { data: message } = useRequest<string>(() => axios.get('/api/message'));
+// // 这里 T = string
+// // message 的类型是 string | null
+
+// // 示例3: 获取数字数据
+// const { data: count } = useRequest<number>(() => axios.get('/api/count'));
+// // 这里 T = number
+// // count 的类型是 number | null

@@ -61,6 +61,21 @@ const menuConfig = [
     label: 'perInfo',
     path: '/perInfo',
   },
+  {
+    key: 'web-socket',
+    label: 'web-socket',
+    path: '/web-socket',
+  },
+  {
+    key: 'form-table',
+    label: 'form-table',
+    path: '/form-table',
+  },
+  {
+    key: 'hooks-demo',
+    label: 'Hooks 综合练习',
+    path: '/hooks-demo',
+  },
 ];
 
 export default menuConfig;

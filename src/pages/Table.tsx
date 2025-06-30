@@ -10,9 +10,7 @@ interface DataType {
   tags: string[];
 }
 
-const getColumns = (
-  editHandle: (record: DataType) => void,
-): TableProps<DataType>['columns'] => [
+const getColumns = (editHandle: (record: DataType) => void): TableProps<DataType>['columns'] => [
   {
     title: 'Name',
     dataIndex: 'name',
@@ -35,7 +33,6 @@ const getColumns = (
     dataIndex: 'tags',
     render: (_, { tags }) => {
       console.log('jyhTags', _, tags);
-
       return (
         <>
           {tags.map((tag) => {
@@ -120,9 +117,7 @@ const TableComponent = () => {
         // 确保 tags 始终是一个数组
         const updatedValues = {
           ...values,
-          tags: values.tags
-            ? values.tags.split(',').map((tag: string) => tag.trim())
-            : [],
+          tags: values.tags ? values.tags.split(',').map((tag: string) => tag.trim()) : [],
         };
 
         if (formData) {

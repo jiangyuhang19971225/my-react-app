@@ -4,7 +4,6 @@ import React, { useState, useCallback } from 'react';
 import styles from './index.module.css';
 import FirstForm from './components/FirstForm';
 import SecondForm from './components/SecondForm';
-import { log } from 'echarts/types/src/util/log.js';
 
 type FieldType = {
   username?: string;
