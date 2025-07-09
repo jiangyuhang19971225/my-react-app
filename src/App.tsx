@@ -1,17 +1,19 @@
-// 导入 React 库
-import React from 'react';
-// 从 react-router-dom 库中导入路由相关的组件和钩子
+// 🔥 【APP根组件】- 集成Redux Store和i18n国际化的应用入口
+import React, { useEffect } from 'react';
 import { Route, Routes, Link, useLocation, useNavigate } from 'react-router-dom';
-// 从 antd 库中导入布局和菜单组件
 import { Layout, Menu, Breadcrumb } from 'antd';
-// 导入路由配置文件
-import routes from './routes';
-// 导入菜单配置文件
-import menuConfig from './menuConfig.ts';
+import { useTranslation } from 'react-i18next';
+import { useAppDispatch } from './store';
+import { fetchUser } from './store/slices/userSlice';
 
-// 解构赋值，从 Layout 中提取 Header, Sider 和 Content 组件
+// 🔥 【导入配置】
+import './i18n'; // 初始化i18n配置
+import routes from './routes';
+import { getMenuConfig } from './utils/menuConfig';
+
 const { Header, Sider, Content } = Layout;
 
+// 🔥 【类型定义】
 interface MenuItem {
   key: string;
   label: string;
@@ -19,59 +21,46 @@ interface MenuItem {
   children?: MenuItem[];
 }
 
-/**
- * RouteGuard 组件，用于实现导航守卫逻辑。
- *
- * @param {Object} props - 组件的属性对象。
- * @param {React.ReactNode} props.children - 组件的子元素。
- * @returns {React.ReactNode} 渲染的组件内容。
- */
-const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 获取当前的路由位置
-  const location = useLocation();
-  // 获取导航函数
-  const navigate = useNavigate();
-  // 打印当前的路由位置
-  console.log('location', location);
-  // 打印导航函数
-  console.log('navigate', navigate);
-
-  // 在这里添加你的导航守卫逻辑
-  React.useEffect(() => {
-    // 替换为实际的认证逻辑，这里暂时设为 true
-    const isAuthenticated = true;
-    // 如果用户未认证且当前路径不是根路径，则导航到根路径
-    if (!isAuthenticated && location.pathname !== '/') {
-      navigate('/');
-    }
-  }, [location, navigate]);
-
-  // 返回子元素
-  return <>{children}</>;
-};
-
-/**
- * App 组件，应用的根组件。
- *
- * @returns {React.ReactNode} 渲染的组件内容。
- */
-// 将上下文定义移到组件外部
+// 🔥 【API上下文】- 保持原有的API配置上下文
 export const ApiConfigContext = React.createContext({
   baseUrl: 'http://localhost:3000',
   authToken: '',
 });
 
-const App: React.FC = () => {
-  // 获取导航函数
+/**
+ * 🔥 【路由守卫组件】- 导航守卫逻辑
+ */
+const RouteGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
   const navigate = useNavigate();
-  // 获取当前的路径
-  const currentPath = useLocation().pathname;
-  // 处理路径为 / 的情况，提取选中的菜单键
-  const selectedKey = currentPath === '/' ? '' : currentPath.split('/')[1];
-  console.log('jyhselectedKey', selectedKey, currentPath);
 
-  const findPathByKey = (targetKey: string, menuConfig: MenuItem[]): string | undefined => {
-    for (const item of menuConfig) {
+  React.useEffect(() => {
+    const isAuthenticated = true; // 实际项目中替换为真实的认证逻辑
+    if (!isAuthenticated && location.pathname !== '/') {
+      navigate('/');
+    }
+  }, [location, navigate]);
+
+  return <>{children}</>;
+};
+
+/**
+ * 🔥 【应用布局组件】- 包含菜单和内容区域，支持多语言
+ */
+const AppLayout: React.FC = () => {
+  // 🔥 【使用i18n】- 获取翻译函数
+  const { t } = useTranslation();
+
+  const navigate = useNavigate();
+  const currentPath = useLocation().pathname;
+  const selectedKey = currentPath === '/' ? 'home' : currentPath.split('/')[1];
+
+  // 🔥 【多语言菜单配置】- 根据当前语言动态生成菜单
+  const menuConfig = React.useMemo(() => getMenuConfig(t), [t]);
+
+  // 🔥 【查找路径函数】
+  const findPathByKey = (targetKey: string, menuItems: MenuItem[]): string | undefined => {
+    for (const item of menuItems) {
       if (item.key === targetKey) {
         return item.path;
       }
@@ -82,43 +71,30 @@ const App: React.FC = () => {
     }
     return undefined;
   };
-  /**
-   * 处理菜单点击事件的函数。
-   *
-   * @param {string} key - 被点击菜单项的键。
-   */
+
+  // 🔥 【菜单点击处理】
   const onClick = (key: string) => {
     const path = findPathByKey(key, menuConfig);
     if (!path) {
       console.error(`No path found for key: ${key}`);
-      navigate('/'); // 跳转到默认路径
+      navigate('/');
       return;
     }
     navigate(path);
   };
 
-  // 修改Provider的value使用方式;
-  const contextValue = React.useMemo(() => {
-    return {
+  // 🔥 【API上下文值】
+  const contextValue = React.useMemo(
+    () => ({
       baseUrl: 'http://localhost:3000',
       authToken: localStorage.getItem('token') ?? '',
-    };
-  }, []); // 空依赖数组表示只计算一次
-  // const contextValue = React.useMemo(
-  //   () => ({
-  //     baseUrl: 'http://localhost:3000',
-  //     authToken: localStorage.getItem('token') ?? '',
-  //   }),
-  //   [],
-  // ); // 空依赖数组表示只计算一次
-  // const contextValue = {
-  //   baseUrl: 'http://localhost:3000',
-  //   authToken: localStorage.getItem('token') ?? '',
-  // };
+    }),
+    [],
+  );
 
   return (
     <Layout style={{ height: '100vh' }}>
-      {/* 侧边栏菜单 */}
+      {/* 🔥 【侧边栏菜单】- 支持多语言 */}
       <Sider
         width={200}
         theme="light"
@@ -139,14 +115,17 @@ const App: React.FC = () => {
             borderBottom: '1px solid rgba(5, 5, 5, 0.06)',
           }}
         >
-          <h2 style={{ margin: 0 }}>系统菜单</h2>
+          {/* 🎯 菜单标题 - 使用i18n翻译 */}
+          <h2 style={{ margin: 0 }}>
+            {t('common.language') === '语言' ? '系统菜单' : 'System Menu'}
+          </h2>
         </div>
         <Menu
-          mode="inline" // 改为垂直模式
+          mode="inline"
           theme="light"
           items={menuConfig.map((item) => ({
             ...item,
-            label: item.label,
+            label: item.label, // 已经通过t()函数翻译过了
           }))}
           selectedKeys={[selectedKey]}
           onClick={({ key }) => onClick(key)}
@@ -154,10 +133,10 @@ const App: React.FC = () => {
         />
       </Sider>
 
-      {/* 右侧内容区域 */}
+      {/* 🔥 【右侧内容区域】 */}
       <Layout
         style={{
-          marginLeft: 200, // 与侧边栏宽度一致
+          marginLeft: 200,
           minHeight: '100vh',
         }}
       >
@@ -175,41 +154,51 @@ const App: React.FC = () => {
             paddingLeft: 24,
           }}
         >
-          <Breadcrumb>
-            {currentPath
-              .split('/')
-              .filter(Boolean)
-              .map((segment, index, arr) => {
-                const path = `/${arr.slice(0, index + 1).join('/')}`;
-                const route = routes.find((r) => r.path === path);
-                const label = (route as { label?: string })?.label || segment;
-                console.log('jyh', path, route, label);
+          {/* 🔥 【面包屑导航】- 支持多语言，使用新版 items 属性 */}
+          <Breadcrumb
+            items={React.useMemo(() => {
+              const breadcrumbItems: Array<{
+                key: string;
+                title: React.ReactNode;
+              }> = [];
 
-                // 首页特殊处理
-                if (index === 0 && path === '/') {
-                  return (
-                    <Breadcrumb.Item key="/">
-                      <Link to="/">首页</Link>
-                    </Breadcrumb.Item>
-                  );
-                }
+              // 添加首页
+              breadcrumbItems.push({
+                key: 'home',
+                title: <Link to="/">{t('menu.home')}</Link>,
+              });
 
-                // 非最后一项可点击
-                if (index !== arr.length - 1) {
-                  return (
-                    <Breadcrumb.Item key={path}>
-                      <Link to={path}>{label}</Link>
-                    </Breadcrumb.Item>
-                  );
-                }
+              // 处理当前路径
+              const pathSegments = currentPath.split('/').filter(Boolean);
 
-                // 最后一项不可点击
-                return <Breadcrumb.Item key={path}>{label}</Breadcrumb.Item>;
-              })}
-          </Breadcrumb>
+              if (pathSegments.length > 0 && currentPath !== '/') {
+                pathSegments.forEach((segment, index) => {
+                  const path = `/${pathSegments.slice(0, index + 1).join('/')}`;
+                  const route = routes.find((r) => r.path === path);
+                  const label = (route as { label?: string })?.label || segment;
+
+                  // 非最后一项可点击
+                  if (index !== pathSegments.length - 1) {
+                    breadcrumbItems.push({
+                      key: path,
+                      title: <Link to={path}>{label}</Link>,
+                    });
+                  } else {
+                    // 最后一项不可点击
+                    breadcrumbItems.push({
+                      key: path,
+                      title: label,
+                    });
+                  }
+                });
+              }
+
+              return breadcrumbItems;
+            }, [currentPath, t])}
+          />
         </Header>
 
-        {/* 修改上下文提供方式 */}
+        {/* 🔥 【内容区域】- 包含API上下文和路由 */}
         <ApiConfigContext.Provider value={contextValue}>
           <Content
             style={{
@@ -234,5 +223,19 @@ const App: React.FC = () => {
   );
 };
 
-// 导出 App 组件
+/**
+ * 🔥 【根App组件】- 提供Redux Store和i18n支持
+ */
+const App: React.FC = () => {
+  const dispatch = useAppDispatch();
+
+  // 🔥 应用初始化时自动获取用户数据
+  useEffect(() => {
+    console.log('🚀 App初始化，自动获取用户数据');
+    dispatch(fetchUser(1)); // 获取ID为1的用户数据
+  }, [dispatch]);
+
+  return <AppLayout />;
+};
+
 export default App;

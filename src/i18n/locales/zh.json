@@ -1,0 +1,31 @@
+{
+  "menu": {
+    "home": "首页",
+    "about": "关于",
+    "table": "表格",
+    "table2": "表格2",
+    "form": "表单",
+    "form1": "基础表单和校验表单",
+    "form2": "动态表单",
+    "form3": "表单高级用法",
+    "echarts": "图表",
+    "classComponent": "类组件",
+    "imgList": "图片列表",
+    "perInfo": "个人信息",
+    "webSocket": "WebSocket",
+    "formTable": "表单表格",
+    "hooksDemo": "Hooks 综合练习",
+    "article": "文章列表",
+    "dynamicPage": "动态页面"
+  },
+  "common": {
+    "language": "语言",
+    "chinese": "中文",
+    "english": "English",
+    "selectLanguage": "选择语言"
+  },
+  "pages": {
+    "homeTitle": "首页",
+    "welcomeMessage": "欢迎使用React应用！"
+  }
+}

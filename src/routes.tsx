@@ -16,6 +16,9 @@ const PerInfo = lazy(() => import('./pages/per-info-table/Perinfo'));
 const WebSocketClient = lazy(() => import('./pages/web-socket/Websocket'));
 const FormTable = lazy(() => import('./pages/form-table/index'));
 const HooksDemo = lazy(() => import('./pages/hooks-demo/index'));
+const ArticleList = lazy(() => import('./pages/artilce-list/index'));
+const AuthorListPage = lazy(() => import('./pages/author/index'));
+const DynamicPage = lazy(() => import('./pages/dynamic-page/index'));
 
 // 新增登录页导入
 const Login = lazy(() => import('./pages/login/index'));
@@ -130,6 +133,33 @@ const routes: RouteObject[] = [
     element: (
       <Suspense fallback={<Spin size="large" />}>
         <HooksDemo />
+      </Suspense>
+    ),
+  },
+
+  {
+    path: '/article-list',
+    element: (
+      <Suspense fallback={<Spin size="large" />}>
+        <ArticleList />
+      </Suspense>
+    ),
+  },
+
+  {
+    path: '/author/:authorId',
+    element: (
+      <Suspense fallback={<Spin size="large" />}>
+        <AuthorListPage />
+      </Suspense>
+    ),
+  },
+
+  {
+    path: '/dynamic-page',
+    element: (
+      <Suspense fallback={<Spin size="large" />}>
+        <DynamicPage />
       </Suspense>
     ),
   },

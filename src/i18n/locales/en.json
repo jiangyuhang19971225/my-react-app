@@ -1,0 +1,31 @@
+{
+  "menu": {
+    "home": "Home",
+    "about": "About",
+    "table": "Table",
+    "table2": "Table2",
+    "form": "Form",
+    "form1": "Basic Form & Validation",
+    "form2": "Dynamic Form",
+    "form3": "Advanced Form",
+    "echarts": "Charts",
+    "classComponent": "Class Component",
+    "imgList": "Image List",
+    "perInfo": "Personal Info",
+    "webSocket": "WebSocket",
+    "formTable": "Form Table",
+    "hooksDemo": "Hooks Demo",
+    "article": "Article List",
+    "dynamicPage": "Dynamic Page"
+  },
+  "common": {
+    "language": "Language",
+    "chinese": "中文",
+    "english": "English",
+    "selectLanguage": "Select Language"
+  },
+  "pages": {
+    "homeTitle": "Home Page",
+    "welcomeMessage": "Welcome to React App!"
+  }
+}
