@@ -89,4 +89,9 @@ export const getMenuConfig = (t: (key: string) => string): MenuItem[] => [
     label: t('menu.dynamicPage'),
     path: '/dynamic-page',
   },
+  {
+    key: 'draggable',
+    label: t('menu.draggable'),
+    path: '/draggable',
+  },
 ];

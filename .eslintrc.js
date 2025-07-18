@@ -22,5 +22,6 @@ module.exports = {
     'react/prop-types': 'off', // 如果你不使用 prop-types 可以关闭
     '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/no-explicit-any': 'off', // 禁用 no-explicit-any 规则
+    "@typescript-eslint/no-explicit-any": "off"
   },
 };

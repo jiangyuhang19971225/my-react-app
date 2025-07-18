@@ -49,4 +49,4 @@ export default tseslint.config({
 });
 ```
 
-# my-app-react react 学习
+# my-app-react react

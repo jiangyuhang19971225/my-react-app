@@ -16,7 +16,8 @@
     "formTable": "表单表格",
     "hooksDemo": "Hooks 综合练习",
     "article": "文章列表",
-    "dynamicPage": "动态页面"
+    "dynamicPage": "动态页面",
+    "draggable": "可拖拽页面"
   },
   "common": {
     "language": "语言",

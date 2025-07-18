@@ -19,15 +19,37 @@ export default defineConfig({
   base: './', // 保持相对路径但需要确保文件层级正确
   server: {
     host: '0.0.0.0',
-    port: 3001,
+    port: 9999,
     // proxy: {
     //   '/api': {
     //     // target: 'http://182.92.86.145:3000/',
     //     target: 'http://127.0.0.1:3001',
-
     //     changeOrigin: true,
     //     rewrite: (path) => path.replace(/^\/api/, ''),
     //   },
     // },
+  },
+  // 新增配置，确保子应用能正确被主应用加载
+  build: {
+    lib: {
+      entry: './src/main.jsx',
+      name: 'ReactSubApp',
+      fileName: 'react-sub-app',
+      formats: ['umd'],
+    },
+    rollupOptions: {
+      output: {
+        // 确保打包后的代码不会被重复加载
+        manualChunks: undefined,
+        // 确保打包后的文件使用自执行函数
+        format: 'system',
+      },
+    },
+    // 关闭代码分割
+    modulePreload: {
+      polyfill: false,
+    },
+    // 确保打包后的文件可以跨域访问
+    assetsInlineLimit: 0,
   },
 });

@@ -19,6 +19,7 @@ const HooksDemo = lazy(() => import('./pages/hooks-demo/index'));
 const ArticleList = lazy(() => import('./pages/artilce-list/index'));
 const AuthorListPage = lazy(() => import('./pages/author/index'));
 const DynamicPage = lazy(() => import('./pages/dynamic-page/index'));
+const DraggablePage = lazy(() => import('./pages/draggable/index'));
 
 // 新增登录页导入
 const Login = lazy(() => import('./pages/login/index'));
@@ -27,6 +28,8 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const token = localStorage.getItem('token'); // 或使用你的token存储方式
   return token ? children : <Navigate to="/login" replace />;
 };
+
+import PreviewPage from './pages/draggable/PreviewPage';
 
 const routes: RouteObject[] = [
   {
@@ -163,7 +166,18 @@ const routes: RouteObject[] = [
       </Suspense>
     ),
   },
-
+  {
+    path: '/draggable',
+    element: (
+      <Suspense fallback={<Spin size="large" />}>
+        <DraggablePage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/draggable/preview',
+    element: <PreviewPage />,
+  },
   {
     path: '*',
     element: (

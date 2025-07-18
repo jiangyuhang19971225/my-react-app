@@ -1,5 +1,4 @@
 import { Row, Col } from 'antd';
-// ... existing code ...
 import React, { useEffect, useRef, useMemo } from 'react';
 import * as echarts from 'echarts';
 
@@ -84,7 +83,6 @@ const Echarts: React.FC = () => {
       </div>
     );
   };
-  // ... existing code ...
 
   return (
     <div>

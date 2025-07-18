@@ -11,6 +11,12 @@ import './i18n'; // 初始化i18n配置
 import routes from './routes';
 import { getMenuConfig } from './utils/menuConfig';
 
+// 引入 micro-app
+import microApp from '@micro-zoe/micro-app';
+
+// 初始化 micro-app
+microApp.start();
+
 const { Header, Sider, Content } = Layout;
 
 // 🔥 【类型定义】
@@ -92,6 +98,13 @@ const AppLayout: React.FC = () => {
     [],
   );
 
+  // 微应用代码
+  if (window.microApp) {
+    const params = window.microApp.getData();
+    console.log(params.param1); // 输出: value1
+    console.log(params.param2); // 输出: 2
+  }
+
   return (
     <Layout style={{ height: '100vh' }}>
       {/* 🔥 【侧边栏菜单】- 支持多语言 */}
@@ -104,8 +117,6 @@ const AppLayout: React.FC = () => {
         style={{
           overflow: 'auto',
           height: '100vh',
-          position: 'fixed',
-          left: 0,
         }}
       >
         <div
@@ -136,7 +147,7 @@ const AppLayout: React.FC = () => {
       {/* 🔥 【右侧内容区域】 */}
       <Layout
         style={{
-          marginLeft: 200,
+          // marginLeft: 200,
           minHeight: '100vh',
         }}
       >

@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react';
 import dayjs from 'dayjs';
+import { Button, Form, Input, Select, DatePicker } from 'antd';
 // 定义数据项的类型
 type DataItem = {
   id: string;
@@ -12,6 +13,7 @@ type DataItem = {
   name: string;
   defaultValue?: dayjs.Dayjs | string;
   options?: { value: string; label: string }[];
+  rules?: { required: boolean; message: string };
 };
 
 // 定义组件的 props 类型
@@ -71,6 +73,7 @@ const DynamicPage: React.FC = () => {
           return {
             ...item,
             defaultValue: dayjs(item.defaultValue), // 转换为Day.js对象
+            rules: { required: true, message: '必填' },
           };
         }
         return item;
@@ -145,6 +148,8 @@ const DynamicPage: React.FC = () => {
     console.log('📊 表单值实时更新:', formValues);
   }, [formValues]);
 
+  const [form] = Form.useForm();
+
   return (
     <div>
       <h1>Dynamic Page</h1>
@@ -168,6 +173,50 @@ const DynamicPage: React.FC = () => {
         })}
       <div>
         <h3>动态加载组件使用ant组件，使用Suspense和lazy</h3>
+        <Form form={form} initialValues={form.getFieldsValue()}>
+          {data.map((item) => (
+            <Form.Item
+              key={item.id}
+              name={item.name}
+              label={item.label}
+              rules={item?.rules ? [item.rules] : [{ required: true, message: '必填123' }]}
+            >
+              {item.type === 'Input' && <Input />}
+              {item.type === 'Select' && (
+                <Select>
+                  {item.options?.map((opt) => (
+                    <Select.Option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
+              {item.type === 'DatePicker' && (
+                <DatePicker
+                  showTime
+                  format="YYYY-MM-DD HH:mm:ss"
+                  onChange={(date, dateString) => {
+                    console.log('日期选择变化:', date, dateString);
+                    if (typeof dateString === 'string') {
+                      handleValueChange(item.name, dayjs(dateString).valueOf());
+                    }
+                    // 处理日期选择变化
+                  }}
+                />
+              )}
+            </Form.Item>
+          ))}
+        </Form>
+        <Button
+          onClick={async () => {
+            // 表单验证后 拿到表单值
+            const values = await form.validateFields();
+            console.log('表单值:', values);
+            console.log('直接获取表单值', form.getFieldValue);
+          }}
+        >
+          提交表单
+        </Button>
       </div>
     </div>
   );

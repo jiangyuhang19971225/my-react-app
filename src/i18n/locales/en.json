@@ -16,7 +16,8 @@
     "formTable": "Form Table",
     "hooksDemo": "Hooks Demo",
     "article": "Article List",
-    "dynamicPage": "Dynamic Page"
+    "dynamicPage": "Dynamic Page",
+    "draggable": "Draggable Page"
   },
   "common": {
     "language": "Language",

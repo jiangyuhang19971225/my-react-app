@@ -68,6 +68,7 @@ const Home: React.FC = () => {
   //     </Suspense>
   //   );
   // };
+
   return (
     <div className="home-container">
       <h1>{t('welcome')}</h1>
@@ -84,6 +85,24 @@ const Home: React.FC = () => {
         }}
       >
         <h2>用户信息测试 redux</h2>
+
+        <button onClick={() => console.log(window.microApp.getData())}>获取数据</button>
+        <button
+          onClick={() => {
+            // console.log('window.microApp', window.microApp, window.microApp.dispatch);
+            // console.log('window.__MICRO_APP_ENVIRONMENT__;', window.__MICRO_APP_ENVIRONMENT__);
+            // console.log(window.microApp.router.current.get('my-app'));
+            window.microApp.dispatch({
+              type: 'user-login',
+              payload: { ...user },
+            });
+            // window.microApp.router.current
+            //   .get('my-app')
+            //   ?.dispatch({ type: 'user-login', payload: { userId: 123 } });
+          }}
+        >
+          设置数据
+        </button>
 
         {/* 刷新按钮 */}
         <button
